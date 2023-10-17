@@ -22,7 +22,6 @@ What we look for:
 - Code organisation: How are you organizing your components?
 - Component Reusability: Ensure that mention component that you are creating is re-usable.
    - Ensure that consumer of mention component can pass `onChange` and `value` prop to make it controlled.
-   - Ensure that consumer of mention component can use custom components for input and select-box
 
 What we don’t look for:
 
