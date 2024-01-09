@@ -1,15 +1,5 @@
 import React, { useState, useEffect, useRef, CSSProperties } from 'react';
 
-interface AtMentionTextEditorProps {
-    value: string;
-    mentionHtmlToAdd: string;
-    onChange: (value: string) => void;
-    onInitiateSearch: (searchString: string) => void;
-    onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
-    placeholder?: string;
-    className?: string;
-}
-
 const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({ value, onChange, onInitiateSearch, mentionHtmlToAdd, onKeyDown, placeholder = "Mention someone" }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
@@ -110,7 +100,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({ value, onChan
     outline: 'none',
     gap: '16px'
   };
-  
+
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
 

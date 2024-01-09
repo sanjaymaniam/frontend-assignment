@@ -1,34 +1,6 @@
-import React, { useState, useEffect, useRef, CSSProperties } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AtMentionTextEditor from './AtMentionTextEditor';
-
-const dropdownStyle: CSSProperties = {
-  width: '100%', // Match the width of the input field
-  padding: '8px 12px',
-  borderRadius: '4px',
-  border: '1px solid #ccc',
-  position: 'absolute',
-  top: '100%', // Positioned below the input field
-  left: '0',
-  zIndex: 1000,
-  gap: '4px',
-  overflowY: 'auto', // Ensure dropdown is scrollable
-  maxHeight: '200px', // Max height for dropdown
-};
-
-// Interface definitions for clarity and type safety.
-interface AtMentionUserInfo {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  gender: string;
-}
-
-interface AtMentionControlProps {
-  dataSource: AtMentionUserInfo[];
-  shouldHighlight?: boolean;
-  mentionChar?: string;
-}
+import AtMentionDropdown from './AtMentionDropdown';
 
 const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
   const [editorText, setEditorText] = useState('');
@@ -45,7 +17,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
     }
   }, [isSearchInProgress]);
 
-  // Handles keyboard interactions for accessibility and UX.
+  // Custom handling for keydown events required for dropdown navigation while focus is on editor
   const handleEditorKeyDown = (e: React.KeyboardEvent) => {
     if (!isSearchInProgress || !dropdownRef.current) return;
 
@@ -76,7 +48,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
   };
 
   const handleInitiateSearch = (mention: string) => {
-    console.log(`initiating search w/ ${mention}`);
+    // console.log(`initiating search w/ ${mention}`);
 
     if (!mention || mention.trim() === '') {
         console.log("Mention is null or empty. Search not initiated.");
@@ -107,11 +79,10 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
   
       if (selectedUser) {
         const atMentionedUserName = `@${selectedUser.first_name} ${selectedUser.last_name}`;
-        console.log(`editor text: ${editorText}`)
-        // const newText = editorText.replace(/@[\w\s]*$/, atMentionedUserName);
+        // console.log(`editor text: ${editorText}`)
         const styledText = applyMentionStyle(atMentionedUserName);
         setAtMentionToAdd(styledText);
-        console.log(`styled text: ${styledText}`)
+        // console.log(`styled text: ${styledText}`)
         setEditorText(styledText);
         setIsSearchInProgress(false);
       }
@@ -123,7 +94,6 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
     return text.replace(mentionRegex, (match) => `<span style="color: #117AA7;">${match}</span>`);
   };
   
-  
   return (
     <div style={{ position: 'relative' }}>
       <AtMentionTextEditor
@@ -134,20 +104,12 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
         mentionHtmlToAdd={atMentionToAdd}
         placeholder="Mention someone..."/>
       
-      {isSearchInProgress && (
-        <select
-          ref={dropdownRef}
-          onChange={handleUserSelection}
-          size={5}
-          style={dropdownStyle}
-        >
-          {mentionedOptions.map(option => (
-            <option key={option.id} value={option.id}>
-              {option.first_name} {option.last_name}
-            </option>
-          ))}
-        </select>
-      )}
+      <AtMentionDropdown
+        options={mentionedOptions}
+        onSelect={handleUserSelection}
+        isShown={isSearchInProgress}
+        dropdownRef={dropdownRef}
+      />
     </div>
   );
 };
