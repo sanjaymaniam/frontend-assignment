@@ -26,7 +26,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
 
       // Add the new span
       editorRef.current.innerHTML += mentionHtmlToAdd;
-      console.log(`val @ editor: ${value}`);
+    //   console.log(`val @ editor: ${value}`);
 
       // Move the caret to the end
       setEndOfContentEditable(editorRef.current);

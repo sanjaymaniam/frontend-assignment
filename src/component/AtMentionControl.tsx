@@ -8,7 +8,7 @@ import AtMentionDropdown from "./AtMentionDropdown";
  * @param {AtMentionControlProps} props - Component props
  * @param {Array} props.dataSource - Data source for user information
  */
-const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
+const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChange, value }) => {
   const [editorText, setEditorText] = useState("");
   const [atMentionToAdd, setAtMentionToAdd] = useState("");
   const [isSearchInProgress, setIsSearchInProgress] = useState(false);
@@ -24,6 +24,12 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
       dropdownRef.current.selectedIndex = 0;
     }
   }, [isSearchInProgress]);
+
+  useEffect(() => {
+    // Update the editorText state if the value prop changes
+    setEditorText(value || '');
+  }, [value]);
+
 
   // Custom handling for keydown events required for dropdown navigation while focus is on editor
   const handleEditorKeyDown = (e: React.KeyboardEvent) => {
@@ -57,6 +63,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
 
   const handleEditorTextChange = (newValue: string) => {
     setEditorText(newValue);
+    onChange?.(newValue); 
   };
 
   const handleInitiateSearch = (mention: string) => {
@@ -96,6 +103,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
         setAtMentionToAdd(styledText);
         setEditorText(styledText);
         setIsSearchInProgress(false);
+        onChange?.(styledText, selectedUser);
       }
     }
   };
