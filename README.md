@@ -1,34 +1,140 @@
-# Frontend Assignment 🚀
+# Setting Up the Project
 
-Project: Mentions component
-Time provided: 2 hours
-Tech stack: React + Typescript
-Link to design: [Design](https://www.figma.com/file/EEmRktq44VPR3u8Lx7otOJ/Frontend-Assignment---Dropdown?type=design&t=YyUdu9qHBb3sS66T-6)
+1. **Clone the Repository**
 
-Description
-This is similar to the @-mentions in X/Twitter. The user can type any text in the input element but when user types `@` then a select box should appear from which they can select an option and it should be displayed in input element. For example `Hi @Luke Skywalker may the force be with you.`. An `onChange` handler should be triggered with the input and the options selected, in a format of your choice.
+   Clone the project repository to your local machine:
+
+```
+git clone https://github.com/sanjaymaniam/frontend-assignment.git
+cd frontend-assignment
+````
+   
+   2. **Install Dependencies**
+
+Run the following command in the project root directory to install the required dependencies:
+
+```
+npm install
+```
+
+
+3. **Start the Development Server**
+To start the Vite development server, run:
+```
+npm run dev
+```
+
+# Component Documentation
+
+## AtMentionControl
+
+### Overview
+
+`AtMentionControl` integrates a custom text editor and a dropdown for @mentions.
+
+### Props
+
+- `dataSource`: `AtMentionUserInfo[]`  
+Array of user information objects for @mentions.
+
+- `shouldHighlight`: `boolean` (optional)  
+  Indicates whether @mentions should be highlighted.
+
+- `mentionChar`: `string` (optional)  (not implemented yet)
+  The character used to trigger @mentions. Defaults to '@'.
+
+- `onChange`: `(inputText: string, selectedOption?: AtMentionUserInfo) => void` (optional)  
+  Callback function triggered when the input changes or an option is selected.
+
+- `value`: `string` (optional)  
+  The controlled value of the text editor.
+
+### Usage
+
+```tsx
+<AtMentionControl
+  dataSource={users}
+  onChange={(text, user) => console.log(text, user)}
+  value={editorContent}
+/>
+```
+
+## AtMentionTextEditor
+
+A custom text editor for typing and displaying @mentions. Since input fields do not allow us to render parts of the field in a different style, this component was built. It wraps up the @ mentions in a span and renders them in a highlighted manner.
+
+### Props
+
+- `value`: `string`
+The current text in the editor.
+
+- `onChange`: `(value: string) => void`
+Callback for text changes.
+
+- `onKeyDown`: `(event: React.KeyboardEvent<HTMLDivElement>) => void (optional)`
+Callback for key down events.
+
+- `onInitiateSearch`: `(searchString: string) => void`
+Callback to initiate @ mention search.
+
+- `mentionHtmlToAdd`: `string`
+HTML to be added when a mention is selected. When a user is selected, their user name is wrapped inside a span tag and stored here.
+
+- `placeholder`: `string` (optional)
+Placeholder text for the editor.
+
+Usage:
+```tsx
+<AtMentionTextEditor
+  value={editorText}
+  onChange={handleEditorTextChange}
+  onInitiateSearch={handleInitiateSearch}
+  mentionHtmlToAdd={mentionHtml}
+  placeholder="Mention something here..."
+/>
+```
+
+## AtMentionDropDown
+
+Displays a dropdown list of users based on the editor input.
+
+### Props
+
+- `options`: `AtMentionUserInfo[]`
+ Options for the dropdown.
  
-Instructions:
+- `onSelect`: `(e: React.ChangeEvent<HTMLSelectElement>) => void`
+Callback for when an option is selected.
 
-- Implement as much as possible in the given time.
-- Push your code to Github/Gitlab/<any other> and send us the link.
-- Please write us a note on what else you would do if you could spend more time.
- 
-What we look for:
+- `isShown`: `boolean`
+Whether the dropdown is visible.
 
-- Thinking: Are you able to think through the flow and edge cases?
-- Tests: How well is the code tested through unit/integration tests?
-- Documentation: How can anyone new run this app locally and contribute to it?
-- Code organisation: How are you organizing your components?
-- Component Reusability: Ensure that mention component that you are creating is re-usable.
-   - Ensure that consumer of mention component can pass `onChange` and `value` prop to make it controlled.
+- `dropdownRef`: `React.RefObject<HTMLSelectElement>`
+Ref to the dropdown element.
 
-What we don’t look for:
 
- - Custom select box: You need not implement a custom select box. You're welcome to use the native select box or your favorite library.
- - Styling: It can look & feel very bare-bones, that's perfectly fine. 
-
-From where you can get data for options while triggering mention actions
- - Use data present in data.json as raw data for mention component.
-
-Happy coding! 💻
+## TO DO
+Items to take up if there's more time:
+- [ ] Support for searching users by email ID  
+- [ ] Error handling for cases where no results are found in the @mention search.
+- [ ] Write tests
+- [ ] Custom sort Order and search filters: Allow consumers of the component to pass custom sort orders and search filters to support different use cases.
+- [ ] Add/implement more room for customizing the control:
+```
+interface AtMentionControlProps {
+  // 
+  dataSource: AtMentionUserDetail[];
+  onTextChanged: (value: string) => void;
+  // on fetch error
+  // allowSpaces
+  // enablePersistance
+  // filterType: StartsWith, EndsWith, Contains
+  // shouldHighlight: should the selected item be highlighted
+  // ignoreCase
+  // mentionChars- default is @, but others can be set
+  // minLength- set to 1
+  // sortOrder
+  // pass custom filter
+  // max number of items to show
+}
+```
