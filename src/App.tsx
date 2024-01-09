@@ -3,18 +3,16 @@ import AtMentionControl from './component/AtMentionControl'
 import userInfos from '../data.json';
 
 function App() {
-  const handleChange = (value: string) => {
-    // console.log("Current Value: ", value);
-    // this should return and print-
-    // total text
-    // mentioned user ids
+  const handleChange = (inputText: string, selectedUser?: AtMentionUserInfo) => {
+    console.log(`Input Text: ${inputText}, Selected User: ${selectedUser}`);
   };
 
   return (
     <div>
       <AtMentionControl 
         dataSource={userInfos}
-        shouldHighlight={true} />
+        shouldHighlight={true}
+        onChange={handleChange} />
     </div>
   )
 }

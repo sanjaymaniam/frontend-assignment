@@ -30,7 +30,6 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChang
     setEditorText(value || '');
   }, [value]);
 
-
   // Custom handling for keydown events required for dropdown navigation while focus is on editor
   const handleEditorKeyDown = (e: React.KeyboardEvent) => {
     if (!isSearchInProgress || !dropdownRef.current) return;
