@@ -120,7 +120,7 @@ Items to take up if there's more time:
 - [ ] Error handling for cases where no results are found in the @mention search.
 - [ ] Write tests
 - [ ] Custom sort Order and search filters: Allow consumers of the component to pass custom sort orders and search filters to support different use cases.
-- [ ] Add/implement more room for customizing the control:
+- [ ] Add/implement more options for customizing the control:
 ```
 interface AtMentionControlProps {
   // 
