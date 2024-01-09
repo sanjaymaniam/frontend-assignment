@@ -1,12 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
-import AtMentionTextEditor from './AtMentionTextEditor';
-import AtMentionDropdown from './AtMentionDropdown';
+import React, { useState, useEffect, useRef } from "react";
+import AtMentionTextEditor from "./AtMentionTextEditor";
+import AtMentionDropdown from "./AtMentionDropdown";
 
+/**
+ * This component handles the overall functionality of the @ mention system.
+ * It integrates the custom text editor and dropdown.
+ * @param {AtMentionControlProps} props - Component props
+ * @param {Array} props.dataSource - Data source for user information
+ */
 const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
-  const [editorText, setEditorText] = useState('');
-  const [atMentionToAdd, setAtMentionToAdd] = useState('');
+  const [editorText, setEditorText] = useState("");
+  const [atMentionToAdd, setAtMentionToAdd] = useState("");
   const [isSearchInProgress, setIsSearchInProgress] = useState(false);
-  const [mentionedOptions, setMentionedOptions] = useState<AtMentionUserInfo[]>([]);
+  const [mentionedOptions, setMentionedOptions] = useState<AtMentionUserInfo[]>(
+    []
+  );
 
   const dropdownRef = useRef<HTMLSelectElement>(null);
 
@@ -22,19 +30,23 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
     if (!isSearchInProgress || !dropdownRef.current) return;
 
     switch (e.key) {
-      case 'ArrowDown':
-      case 'ArrowUp':
+      case "ArrowDown":
+      case "ArrowUp":
         e.preventDefault();
-        const selectedIndex = dropdownRef.current.selectedIndex + (e.key === 'ArrowDown' ? 1 : -1);
-        if (selectedIndex >= 0 && selectedIndex < dropdownRef.current.options.length) {
+        const selectedIndex =
+          dropdownRef.current.selectedIndex + (e.key === "ArrowDown" ? 1 : -1);
+        if (
+          selectedIndex >= 0 &&
+          selectedIndex < dropdownRef.current.options.length
+        ) {
           dropdownRef.current.selectedIndex = selectedIndex;
         }
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
         selectUserFromDropdown();
         break;
-      case 'Escape':
+      case "Escape":
         e.preventDefault();
         setIsSearchInProgress(false);
         break;
@@ -48,21 +60,20 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
   };
 
   const handleInitiateSearch = (mention: string) => {
-    // console.log(`initiating search w/ ${mention}`);
-
-    if (!mention || mention.trim() === '') {
-        console.log("Mention is null or empty. Search not initiated.");
-        setIsSearchInProgress(false);
-        setMentionedOptions([]);
-        return;
+    if (!mention || mention.trim() === "") {
+      setIsSearchInProgress(false);
+      setMentionedOptions([]);
+      return;
     }
 
     setIsSearchInProgress(true);
-    const filteredOptions = dataSource.filter(option =>
-        `${option.first_name} ${option.last_name}`.toLowerCase().includes(mention.toLowerCase())
+    const filteredOptions = dataSource.filter((option) =>
+      `${option.first_name} ${option.last_name}`
+        .toLowerCase()
+        .includes(mention.toLowerCase())
     );
     setMentionedOptions(filteredOptions);
-};
+  };
 
   const handleUserSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
     selectUserFromDropdown();
@@ -72,38 +83,48 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource }) => {
   const selectUserFromDropdown = () => {
     const selectedIndex = dropdownRef.current?.selectedIndex ?? -1;
     const selectedOption = dropdownRef.current?.options[selectedIndex];
-  
+
     if (selectedIndex >= 0 && selectedOption) {
       const selectedUserId = selectedOption.value;
-      const selectedUser = dataSource.find(option => option.id.toString() === selectedUserId);
-  
+      const selectedUser = dataSource.find(
+        (option) => option.id.toString() === selectedUserId
+      );
+
       if (selectedUser) {
         const atMentionedUserName = `@${selectedUser.first_name} ${selectedUser.last_name}`;
-        // console.log(`editor text: ${editorText}`)
         const styledText = applyMentionStyle(atMentionedUserName);
         setAtMentionToAdd(styledText);
-        // console.log(`styled text: ${styledText}`)
         setEditorText(styledText);
         setIsSearchInProgress(false);
       }
     }
   };
-  
+
+  /**
+   * Applies HTML styling to the last @ mention in a given text.
+   * This function searches for the last occurrence of a mention (indicated by '@')
+   * in the provided text and applies HTML styling to it. The mention is wrapped
+   * in a `<span>` tag with a specified color style.
+   */
   const applyMentionStyle = (text: string) => {
     const mentionRegex = /@[^@]*$/;
-    return text.replace(mentionRegex, (match) => `<span style="color: #117AA7;">${match}</span>`);
+    return text.replace(
+      mentionRegex,
+      (match) => `<span style="color: #117AA7;">${match}</span>`
+    );
   };
-  
+
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: "relative" }}>
       <AtMentionTextEditor
         value={editorText}
         onChange={handleEditorTextChange}
         onKeyDown={handleEditorKeyDown}
         onInitiateSearch={handleInitiateSearch}
         mentionHtmlToAdd={atMentionToAdd}
-        placeholder="Mention someone..."/>
-      
+        placeholder="Mention someone..."
+      />
+
       <AtMentionDropdown
         options={mentionedOptions}
         onSelect={handleUserSelection}

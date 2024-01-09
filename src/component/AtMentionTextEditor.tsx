@@ -1,35 +1,47 @@
-import React, { useState, useEffect, useRef, CSSProperties } from 'react';
+import React, { useState, useEffect, useRef, CSSProperties } from "react";
 
-const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({ value, onChange, onInitiateSearch, mentionHtmlToAdd, onKeyDown, placeholder = "Mention someone" }) => {
+const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
+  value,
+  onChange,
+  onInitiateSearch,
+  mentionHtmlToAdd,
+  onKeyDown,
+  placeholder = "Mention someone",
+}) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  
-    useEffect(() => {
-        if (editorRef.current && !isInternalUpdate) {
-            // Find the last occurrence of '@'
-            const lastAtIdx = editorRef.current.innerHTML.lastIndexOf('@');
-            if (lastAtIdx !== -1) {
-                // Remove everything after the last '@'
-                editorRef.current.innerHTML = editorRef.current.innerHTML.substring(0, lastAtIdx);
-            }
 
-            // Add the new span
-            editorRef.current.innerHTML += mentionHtmlToAdd;
-            console.log(`val @ editor: ${value}`);
+  useEffect(() => {
+    if (editorRef.current && !isInternalUpdate) {
+      // Find the last occurrence of '@'
+      const lastAtIdx = editorRef.current.innerHTML.lastIndexOf("@");
+      if (lastAtIdx !== -1) {
+        // Remove everything after the last '@'
+        editorRef.current.innerHTML = editorRef.current.innerHTML.substring(
+          0,
+          lastAtIdx
+        );
+      }
 
-            // Move the caret to the end
-            setEndOfContentEditable(editorRef.current);
-        }
-        setIsInternalUpdate(false);
-    }, [value, mentionHtmlToAdd]);
+      // Add the new span
+      editorRef.current.innerHTML += mentionHtmlToAdd;
+      console.log(`val @ editor: ${value}`);
 
+      // Move the caret to the end
+      setEndOfContentEditable(editorRef.current);
+    }
+    setIsInternalUpdate(false);
+  }, [value, mentionHtmlToAdd]);
 
   const setEndOfContentEditable = (contentEditableElement: HTMLElement) => {
-    if (contentEditableElement.lastChild && contentEditableElement.lastChild.nodeName === 'SPAN') {
-        // Add a text node with a non-breaking space after the last <span>
-        const textNode = document.createTextNode("\u00A0");
-        contentEditableElement.appendChild(textNode);
+    if (
+      contentEditableElement.lastChild &&
+      contentEditableElement.lastChild.nodeName === "SPAN"
+    ) {
+      // Add a text node with a non-breaking space after the last <span>
+      const textNode = document.createTextNode("\u00A0");
+      contentEditableElement.appendChild(textNode);
     }
 
     // https://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity
@@ -42,14 +54,13 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({ value, onChan
         selection.removeAllRanges();
         selection.addRange(range);
       }
-    } else if ((document as any).selection) { 
+    } else if ((document as any).selection) {
       const range = (document.body as any).createTextRange();
       range.moveToElementText(contentEditableElement);
       range.collapse(false);
       range.select();
     }
   };
-
 
   const handleInput = () => {
     if (editorRef.current) {
@@ -61,7 +72,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({ value, onChan
   };
 
   const hasValidMentionTerm = (value: string): boolean => {
-    const atSymbolIndex = value.lastIndexOf('@');
+    const atSymbolIndex = value.lastIndexOf("@");
 
     // Check if '@' exists
     if (atSymbolIndex === -1) return false;
@@ -71,15 +82,16 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({ value, onChan
 
     // Check if the substring contains a space
     const containsSpace = mentionSubstring.includes(" ");
-    console.log(`checking if @ mention is present in ${value} : ${!containsSpace}`);
+    console.log(
+      `checking if @ mention is present in ${value} : ${!containsSpace}`
+    );
 
     return !containsSpace;
-};
-
+  };
 
   const checkForAtMention = (text: string) => {
     if (hasValidMentionTerm(text) && onInitiateSearch) {
-      const mention = text.slice(text.lastIndexOf('@') + 1).trim();
+      const mention = text.slice(text.lastIndexOf("@") + 1).trim();
       onInitiateSearch(mention);
     }
   };
@@ -90,15 +102,15 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({ value, onChan
     }
   };
 
-  const editorStyle : CSSProperties = {
-    border: '1px solid #616061',
-    borderRadius: '4px',
-    minHeight: isFocused ? '82px' : '40px',
-    padding: '5px',
-    textAlign: 'left',
-    fontSize: '22px',
-    outline: 'none',
-    gap: '16px'
+  const editorStyle: CSSProperties = {
+    border: "1px solid #616061",
+    borderRadius: "4px",
+    minHeight: isFocused ? "82px" : "40px",
+    padding: "5px",
+    textAlign: "left",
+    fontSize: "22px",
+    outline: "none",
+    gap: "16px",
   };
 
   const handleFocus = () => setIsFocused(true);
