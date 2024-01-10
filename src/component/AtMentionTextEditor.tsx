@@ -1,5 +1,19 @@
 import React, { useState, useEffect, useRef, CSSProperties } from "react";
 
+/**
+ * Wrapper around a content-editable div functioning as a text editor with 
+ * @mention capabilities. It manages placeholder behavior, caret positioning,
+ * and more importantly, allows us to render selected user name with a custom
+ * styling in the editor.
+ * 
+ * Props:
+ * - `value`: Current text content of the editor.
+ * - `onChange`: Callback for text changes.
+ * - `onInitiateSearch`: Callback to trigger a search when valid mention character is found.
+ * - `mentionHtmlToAdd`: HTML content containing the mentioned user's name.
+ * - `onKeyDown`: Handler for keyboard events.
+ * - `placeholder`: Text displayed when the editor is empty.
+ */
 const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   value,
   onChange,
