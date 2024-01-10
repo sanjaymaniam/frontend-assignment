@@ -11,6 +11,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   const editorRef = useRef<HTMLDivElement>(null);
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [isPlaceholderActive, setIsPlaceholderActive] = useState(true);
 
   useEffect(() => {
     if (editorRef.current && !isInternalUpdate) {
@@ -26,13 +27,20 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
 
       // Add the new span
       editorRef.current.innerHTML += mentionHtmlToAdd;
-    //   console.log(`val @ editor: ${value}`);
 
       // Move the caret to the end
       setEndOfContentEditable(editorRef.current);
     }
     setIsInternalUpdate(false);
   }, [value, mentionHtmlToAdd]);
+
+  useEffect(() => {
+    // Initialize with placeholder
+    if (editorRef.current) {
+      editorRef.current.innerText = placeholder;
+      editorRef.current.classList.add('editorPlaceholder');
+    }
+  }, []);
 
   const setEndOfContentEditable = (contentEditableElement: HTMLElement) => {
     if (
@@ -62,15 +70,6 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
     }
   };
 
-  const handleInput = () => {
-    if (editorRef.current) {
-      const newValue = editorRef.current.innerText;
-      setIsInternalUpdate(true);
-      onChange(newValue);
-      checkForAtMention(newValue);
-    }
-  };
-
   const hasValidMentionTerm = (value: string): boolean => {
     const atSymbolIndex = value.lastIndexOf("@");
 
@@ -82,10 +81,6 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
 
     // Check if the substring contains a space
     const containsSpace = mentionSubstring.includes(" ");
-    console.log(
-      `checking if @ mention is present in ${value} : ${!containsSpace}`
-    );
-
     return !containsSpace;
   };
 
@@ -97,8 +92,28 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   };
 
   const handleKeyDownInternal = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isPlaceholderActive) {
+        // Prevent arrow key movement
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+            e.preventDefault();
+        }
+        return;
+    }
+      
     if (onKeyDown) {
       onKeyDown(e);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isPlaceholderActive) {
+      // Prevents the caret from moving on mouse down
+      e.preventDefault();
+    }
+  
+    if (editorRef.current && document.activeElement !== editorRef.current) {
+      // Focus the editor if it's not currently focused
+      editorRef.current.focus();
     }
   };
 
@@ -113,8 +128,92 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
     gap: "16px",
   };
 
-  const handleFocus = () => setIsFocused(true);
-  const handleBlur = () => setIsFocused(false);
+  const handleFocus = () => {
+    if (editorRef.current && isPlaceholderActive) {      
+      // Move the caret to the start on focus
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.setStart(editorRef.current, 0);
+      range.collapse(true);
+      if (sel != null) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
+  };
+
+  const handleBlur = () => {
+    if (editorRef.current && editorRef.current.innerText.trim() === '') {
+      // Reinsert placeholder if content is empty
+      editorRef.current.innerText = placeholder;
+      editorRef.current.classList.add('editorPlaceholder');
+      setIsPlaceholderActive(true);
+    }
+  };
+
+  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    const inputEvent = e.nativeEvent as InputEvent;
+  
+    // Check if the placeholder is currently active
+    if (isPlaceholderActive) {
+        // Prevent any input and caret movement
+        e.preventDefault(); // Prevents the default input behavior
+
+      handlePlaceholderActive(inputEvent.data);
+    } else {
+      handlePlaceholderInactive();
+    }
+  };
+  
+  /**
+   * Handles the case when the placeholder is active.
+   * @param {string | null} inputData - The character that was just typed.
+   */
+  const handlePlaceholderActive = (inputData: string | null) => {
+    const inputChar = inputData || ''; // Default to empty string if inputData is null
+    
+    if (editorRef.current != null)
+    {
+        // Replace placeholder with the typed character and update states
+        editorRef.current.innerText = inputChar;
+        editorRef.current.classList.remove('editorPlaceholder');
+        setIsPlaceholderActive(false);
+    
+        // Move the caret to the end
+        setEndOfContentEditable(editorRef.current);
+    }
+  };
+  
+  /**
+   * Handles the case when the placeholder is not active.
+   */
+  const handlePlaceholderInactive = () => {
+    if (editorRef.current != null)
+    {
+        // If editor is empty, reset to placeholder
+        if (!editorRef.current.innerText.trim()) {
+            resetToPlaceholder();
+        } else {
+            // Update with the new value and initiate mention search if applicable
+            const newValue = editorRef.current.innerText;
+            setIsInternalUpdate(true);
+            onChange(newValue);
+            checkForAtMention(newValue);
+        }
+    }
+  };
+  
+  /**
+   * Resets the editor to show the placeholder.
+   */
+  const resetToPlaceholder = () => {
+    if (editorRef.current != null)
+    {
+        editorRef.current.innerText = placeholder;
+        editorRef.current.classList.add('editorPlaceholder');
+        setIsPlaceholderActive(true);
+    }
+  };
 
   return (
     <div
@@ -124,6 +223,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
       onFocus={handleFocus}
       onBlur={handleBlur}
       onKeyDown={handleKeyDownInternal}
+      onMouseDown={handleMouseDown}
       spellCheck={false}
       style={editorStyle}
     />
