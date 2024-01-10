@@ -129,7 +129,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChang
         onKeyDown={handleEditorKeyDown}
         onInitiateSearch={handleInitiateSearch}
         mentionHtmlToAdd={atMentionToAdd}
-        placeholder="Mention someone..."
+        placeholder="Mention someone.."
       />
 
       <AtMentionDropdown

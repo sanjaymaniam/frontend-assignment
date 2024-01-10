@@ -6,84 +6,161 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   onInitiateSearch,
   mentionHtmlToAdd,
   onKeyDown,
-  placeholder = "Mention someone",
+  placeholder = "Mention",
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const [isPlaceholderActive, setIsPlaceholderActive] = useState(true);
 
+  // Effect for handling updates to mention content and moving the caret.
   useEffect(() => {
-    if (editorRef.current && !isInternalUpdate) {
-      // Find the last occurrence of '@'
-      const lastAtIdx = editorRef.current.innerHTML.lastIndexOf("@");
-      if (lastAtIdx !== -1) {
-        // Remove everything after the last '@'
-        editorRef.current.innerHTML = editorRef.current.innerHTML.substring(
-          0,
-          lastAtIdx
-        );
-      }
-
-      // Add the new span
-      editorRef.current.innerHTML += mentionHtmlToAdd;
-
-      // Move the caret to the end
-      setEndOfContentEditable(editorRef.current);
+    if (!isInternalUpdate && editorRef.current) {
+      updateMentionContent();
     }
     setIsInternalUpdate(false);
   }, [value, mentionHtmlToAdd]);
 
+  // Initialize the editor with a placeholder text.
   useEffect(() => {
-    // Initialize with placeholder
     if (editorRef.current) {
       editorRef.current.innerText = placeholder;
       editorRef.current.classList.add('editorPlaceholder');
     }
   }, []);
 
-  const setEndOfContentEditable = (contentEditableElement: HTMLElement) => {
-    if (
-      contentEditableElement.lastChild &&
-      contentEditableElement.lastChild.nodeName === "SPAN"
-    ) {
-      // Add a text node with a non-breaking space after the last <span>
-      const textNode = document.createTextNode("\u00A0");
-      contentEditableElement.appendChild(textNode);
+  // Updates the content within the editor and handles mention HTML.
+  const updateMentionContent = () => {
+    if (editorRef.current) {
+      const lastAtIdx = editorRef.current.innerHTML.lastIndexOf("@");
+      if (lastAtIdx !== -1) {
+        editorRef.current.innerHTML = editorRef.current.innerHTML.substring(0, lastAtIdx);
+      }
+      editorRef.current.innerHTML += mentionHtmlToAdd;
+      moveCaretToEndOfEditor();
     }
+  };
 
+  // Moves the caret to the end of the contentEditable element.
+  const moveCaretToEndOfEditor = () => {
     // https://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity
-    if (document.createRange) {
+    if (editorRef.current) {
       const range = document.createRange();
-      range.selectNodeContents(contentEditableElement);
+      range.selectNodeContents(editorRef.current);
       range.collapse(false);
       const selection = window.getSelection();
       if (selection) {
         selection.removeAllRanges();
         selection.addRange(range);
       }
-    } else if ((document as any).selection) {
-      const range = (document.body as any).createTextRange();
-      range.moveToElementText(contentEditableElement);
-      range.collapse(false);
-      range.select();
     }
   };
 
-  const hasValidMentionTerm = (value: string): boolean => {
-    const atSymbolIndex = value.lastIndexOf("@");
-
-    // Check if '@' exists
-    if (atSymbolIndex === -1) return false;
-
-    // Get the substring after the last '@'
-    const mentionSubstring = value.substring(atSymbolIndex);
-
-    // Check if the substring contains a space
-    const containsSpace = mentionSubstring.includes(" ");
-    return !containsSpace;
+  // Handles behavior when the placeholder is active.
+  const handlePlaceholderActive = (inputData: string | null) => {
+    if (inputData && editorRef.current) {
+      editorRef.current.innerText = inputData;
+      editorRef.current.classList.remove('editorPlaceholder');
+      setIsPlaceholderActive(false);
+      moveCaretToEndOfEditor();
+    }
   };
 
+  // Handles behavior when the placeholder is not active.
+  const handlePlaceholderInactive = () => {
+    if (editorRef.current) {
+      if (!editorRef.current.innerText.trim()) {
+        resetToPlaceholder();
+      } else {
+        const newValue = editorRef.current.innerText;
+        setIsInternalUpdate(true);
+        onChange(newValue);
+        checkForAtMention(newValue);
+      }
+    }
+  };
+
+  // Resets the editor content to show the placeholder.
+  const resetToPlaceholder = () => {
+    if (editorRef.current) {
+      editorRef.current.innerText = placeholder;
+      editorRef.current.classList.add('editorPlaceholder');
+      setIsPlaceholderActive(true);
+    }
+  };
+
+  // Handles key down events and prevents arrow key movement when placeholder is active.
+  const handleKeyDownInternal = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isPlaceholderActive) {
+      preventArrowKeyMovement(e);
+      return;
+    }
+    onKeyDown?.(e);
+  };
+
+  // Prevents movement of the caret with arrow keys.
+  const preventArrowKeyMovement = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const arrowKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+    if (arrowKeys.includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  // Handles mouse down events and prevents caret movement when placeholder is active.
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isPlaceholderActive) {
+      e.preventDefault();
+    }
+    if (editorRef.current && document.activeElement !== editorRef.current) {
+      editorRef.current.focus();
+    }
+  };
+
+  // Handles focus events on the editor.
+  const handleFocus = () => {
+    if (editorRef.current && isPlaceholderActive) {
+      moveCaretToStart();
+    }
+  };
+
+  // Moves the caret to the start of the contentEditable element.
+  const moveCaretToStart = () => {
+    if (editorRef.current) {
+      const range = document.createRange();
+      range.setStart(editorRef.current, 0);
+      range.collapse(true);
+      const sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
+  };
+
+  // Handles blur events on the editor.
+  const handleBlur = () => {
+    if (editorRef.current && editorRef.current.innerText.trim() === '') {
+      resetToPlaceholder();
+    }
+  };
+
+  // Handles input events on the editor.
+  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    const inputEvent = e.nativeEvent as InputEvent;
+    if (isPlaceholderActive) {
+      e.preventDefault();
+      handlePlaceholderActive(inputEvent.data);
+    } else {
+      handlePlaceholderInactive();
+    }
+  };
+
+  // Checks if the current text contains a valid mention term.
+  const hasValidMentionTerm = (value: string): boolean => {
+    const atSymbolIndex = value.lastIndexOf("@");
+    return atSymbolIndex !== -1 && !value.substring(atSymbolIndex).includes(" ");
+  };
+
+  // Initiates a search for mentions based on the current text.
   const checkForAtMention = (text: string) => {
     if (hasValidMentionTerm(text) && onInitiateSearch) {
       const mention = text.slice(text.lastIndexOf("@") + 1).trim();
@@ -91,128 +168,16 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
     }
   };
 
-  const handleKeyDownInternal = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (isPlaceholderActive) {
-        // Prevent arrow key movement
-        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
-            e.preventDefault();
-        }
-        return;
-    }
-      
-    if (onKeyDown) {
-      onKeyDown(e);
-    }
-  };
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isPlaceholderActive) {
-      // Prevents the caret from moving on mouse down
-      e.preventDefault();
-    }
-  
-    if (editorRef.current && document.activeElement !== editorRef.current) {
-      // Focus the editor if it's not currently focused
-      editorRef.current.focus();
-    }
-  };
-
+  // Styles for the contentEditable div.
   const editorStyle: CSSProperties = {
     border: "1px solid #616061",
     borderRadius: "4px",
-    minHeight: isFocused ? "82px" : "40px",
+    minHeight: isPlaceholderActive ? "40px" : "82px",
     padding: "5px",
     textAlign: "left",
     fontSize: "22px",
     outline: "none",
     gap: "16px",
-  };
-
-  const handleFocus = () => {
-    if (editorRef.current && isPlaceholderActive) {      
-      // Move the caret to the start on focus
-      const range = document.createRange();
-      const sel = window.getSelection();
-      range.setStart(editorRef.current, 0);
-      range.collapse(true);
-      if (sel != null) {
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
-    }
-  };
-
-  const handleBlur = () => {
-    if (editorRef.current && editorRef.current.innerText.trim() === '') {
-      // Reinsert placeholder if content is empty
-      editorRef.current.innerText = placeholder;
-      editorRef.current.classList.add('editorPlaceholder');
-      setIsPlaceholderActive(true);
-    }
-  };
-
-  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const inputEvent = e.nativeEvent as InputEvent;
-  
-    // Check if the placeholder is currently active
-    if (isPlaceholderActive) {
-        // Prevent any input and caret movement
-        e.preventDefault(); // Prevents the default input behavior
-
-      handlePlaceholderActive(inputEvent.data);
-    } else {
-      handlePlaceholderInactive();
-    }
-  };
-  
-  /**
-   * Handles the case when the placeholder is active.
-   * @param {string | null} inputData - The character that was just typed.
-   */
-  const handlePlaceholderActive = (inputData: string | null) => {
-    const inputChar = inputData || ''; // Default to empty string if inputData is null
-    
-    if (editorRef.current != null)
-    {
-        // Replace placeholder with the typed character and update states
-        editorRef.current.innerText = inputChar;
-        editorRef.current.classList.remove('editorPlaceholder');
-        setIsPlaceholderActive(false);
-    
-        // Move the caret to the end
-        setEndOfContentEditable(editorRef.current);
-    }
-  };
-  
-  /**
-   * Handles the case when the placeholder is not active.
-   */
-  const handlePlaceholderInactive = () => {
-    if (editorRef.current != null)
-    {
-        // If editor is empty, reset to placeholder
-        if (!editorRef.current.innerText.trim()) {
-            resetToPlaceholder();
-        } else {
-            // Update with the new value and initiate mention search if applicable
-            const newValue = editorRef.current.innerText;
-            setIsInternalUpdate(true);
-            onChange(newValue);
-            checkForAtMention(newValue);
-        }
-    }
-  };
-  
-  /**
-   * Resets the editor to show the placeholder.
-   */
-  const resetToPlaceholder = () => {
-    if (editorRef.current != null)
-    {
-        editorRef.current.innerText = placeholder;
-        editorRef.current.classList.add('editorPlaceholder');
-        setIsPlaceholderActive(true);
-    }
   };
 
   return (
