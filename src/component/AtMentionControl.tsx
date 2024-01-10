@@ -1,137 +1,135 @@
-import React, { useState, useEffect, useRef } from "react";
-import AtMentionTextEditor from "./AtMentionTextEditor";
-import AtMentionDropdown from "./AtMentionDropdown";
+import React, { useState, useEffect, useRef } from 'react';
+import AtMentionTextEditor from './AtMentionTextEditor';
+import AtMentionDropdown from './AtMentionDropdown';
 
 /**
- * This component handles the overall functionality of the @ mention system.
- * It integrates the custom text editor and dropdown.
- * @param {AtMentionControlProps} props - Component props
- * @param {Array} props.dataSource - Data source for user information
+ * A component for tagging or selecting a user from a suggestion list.
+ * Implemented by combining a custom text editor (AtMentionTextEditor) with a dropdown (AtMentionDropdown).
+ *
+ * Props:
+ * - dataSource: Data source for user information used in at-mentions.
+ * - onChange: Callback function triggered with the updated text and selected user (if any).
+ * - value: Current value of the text in the editor.
  */
-const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChange, value }) => {
-  const [editorText, setEditorText] = useState("");
-  const [atMentionToAdd, setAtMentionToAdd] = useState("");
+const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChange, value, placeholder = "Mention" }) => {
+  const [editorText, setEditorText] = useState(value || '');
+  const [atMentionToAdd, setAtMentionToAdd] = useState('');
   const [isSearchInProgress, setIsSearchInProgress] = useState(false);
-  const [mentionedOptions, setMentionedOptions] = useState<AtMentionUserInfo[]>(
-    []
-  );
-
+  const [mentionedOptions, setMentionedOptions] = useState<AtMentionUserInfo[]>([]);
   const dropdownRef = useRef<HTMLSelectElement>(null);
 
-  // Effect to manage dropdown focus- dropdown should be in focus when isSearchInProgress is true
   useEffect(() => {
+    // Focuses the first option in the dropdown when search is in progress.
     if (isSearchInProgress && dropdownRef.current) {
       dropdownRef.current.selectedIndex = 0;
     }
   }, [isSearchInProgress]);
 
   useEffect(() => {
-    // Update the editorText state if the value prop changes
+    // Syncs the editor text with the value prop.
     setEditorText(value || '');
   }, [value]);
 
-  // Custom handling for keydown events required for dropdown navigation while focus is on editor
   const handleEditorKeyDown = (e: React.KeyboardEvent) => {
-    if (!isSearchInProgress || !dropdownRef.current) return;
+    // Handles keyboard navigation in the dropdown.
+    if (isSearchInProgress && dropdownRef.current) {
+      e.preventDefault();
+      switch (e.key) {
+        case 'ArrowDown':
+        case 'ArrowUp':
+          navigateDropdown(e.key);
+          break;
+        case 'Enter':
+          selectUserFromDropdown();
+          break;
+        case 'Escape':
+          setIsSearchInProgress(false);
+          break;
+      }
+    }
+  };
 
-    switch (e.key) {
-      case "ArrowDown":
-      case "ArrowUp":
-        e.preventDefault();
-        const selectedIndex =
-          dropdownRef.current.selectedIndex + (e.key === "ArrowDown" ? 1 : -1);
-        if (
-          selectedIndex >= 0 &&
-          selectedIndex < dropdownRef.current.options.length
-        ) {
-          dropdownRef.current.selectedIndex = selectedIndex;
-        }
-        break;
-      case "Enter":
-        e.preventDefault();
-        selectUserFromDropdown();
-        break;
-      case "Escape":
-        e.preventDefault();
-        setIsSearchInProgress(false);
-        break;
-      default:
-        break;
+  const navigateDropdown = (key: string) => {
+    // Navigates dropdown options with arrow keys.
+    if (dropdownRef.current)
+    {
+      const selectedIndex = dropdownRef.current.selectedIndex + (key === 'ArrowDown' ? 1 : -1);
+      if (selectedIndex >= 0 && selectedIndex < dropdownRef.current.options.length) {
+        dropdownRef.current.selectedIndex = selectedIndex;
+      }
     }
   };
 
   const handleEditorTextChange = (newValue: string) => {
+    // Updates the editor text and triggers the onChange callback.
     setEditorText(newValue);
-    onChange?.(newValue); 
+    onChange?.(newValue);
   };
 
   const handleInitiateSearch = (mention: string) => {
-    if (!mention || mention.trim() === "") {
+    // Initiates the search for @mentions in the dropdown.
+    if (!mention.trim()) {
       setIsSearchInProgress(false);
       setMentionedOptions([]);
       return;
     }
 
     setIsSearchInProgress(true);
-    const filteredOptions = dataSource.filter((option) =>
-      `${option.first_name} ${option.last_name}`
-        .toLowerCase()
-        .includes(mention.toLowerCase())
+    const filteredOptions = dataSource.filter(option =>
+      `${option.first_name} ${option.last_name}`.toLowerCase().includes(mention.toLowerCase())
     );
     setMentionedOptions(filteredOptions);
   };
 
-  const handleUserSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleUserSelection = () => {
+    // Handles user selection from the dropdown.
     selectUserFromDropdown();
   };
 
-  // Selects a user from the dropdown and updates the input value.
   const selectUserFromDropdown = () => {
+    // Selects a user from the dropdown and updates the editor content.
     const selectedIndex = dropdownRef.current?.selectedIndex ?? -1;
     const selectedOption = dropdownRef.current?.options[selectedIndex];
 
     if (selectedIndex >= 0 && selectedOption) {
-      const selectedUserId = selectedOption.value;
-      const selectedUser = dataSource.find(
-        (option) => option.id.toString() === selectedUserId
-      );
-
+      const selectedUser = findSelectedUser(selectedOption.value);
       if (selectedUser) {
-        const atMentionedUserName = `@${selectedUser.first_name} ${selectedUser.last_name}`;
-        const styledText = applyMentionStyle(atMentionedUserName);
-        setAtMentionToAdd(styledText);
-        setEditorText(styledText);
-        setIsSearchInProgress(false);
-        onChange?.(styledText, selectedUser);
+        updateEditorWithSelectedUser(selectedUser);
       }
     }
   };
 
-  /**
-   * Applies HTML styling to the last @ mention in a given text.
-   * This function searches for the last occurrence of a mention (indicated by '@')
-   * in the provided text and applies HTML styling to it. The mention is wrapped
-   * in a `<span>` tag with a specified color style.
-   */
+  const findSelectedUser = (userId: string): AtMentionUserInfo | undefined => {
+    // Finds the user object based on the selected option's ID.
+    return dataSource.find(option => option.id.toString() === userId);
+  };
+
+  const updateEditorWithSelectedUser = (selectedUser: AtMentionUserInfo) => {
+    // Updates the editor content with the selected user and triggers onChange.
+    const atMentionedUserName = `@${selectedUser.first_name} ${selectedUser.last_name}`;
+    const styledText = applyMentionStyle(atMentionedUserName);
+    setAtMentionToAdd(styledText);
+    setEditorText(styledText);
+    setIsSearchInProgress(false);
+    onChange?.(styledText, selectedUser);
+  };
+
   const applyMentionStyle = (text: string) => {
+    // Applies styling to the last @ mention in the text.
     const mentionRegex = /@[^@]*$/;
-    return text.replace(
-      mentionRegex,
-      (match) => `<span style="color: #117AA7;">${match}</span>`
-    );
+    return text.replace(mentionRegex, match => `<span style="color: #117AA7;">${match}</span>`);
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: 'relative' }}>
       <AtMentionTextEditor
         value={editorText}
         onChange={handleEditorTextChange}
         onKeyDown={handleEditorKeyDown}
         onInitiateSearch={handleInitiateSearch}
         mentionHtmlToAdd={atMentionToAdd}
-        placeholder="Mention someone.."
+        placeholder={placeholder}
       />
-
       <AtMentionDropdown
         options={mentionedOptions}
         onSelect={handleUserSelection}
