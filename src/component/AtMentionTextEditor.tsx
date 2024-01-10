@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, CSSProperties } from "react";
-import { moveCaretToEndOfEditor } from "../utils/AtMentionUtils";
+import { hasValidMentionTerm, moveCaretToEndOfEditor } from "../utils/AtMentionUtils";
 
 /**
  * Wrapper around a content-editable div functioning as a text editor with 
@@ -144,12 +144,6 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
     } else {
       handlePlaceholderInactive();
     }
-  };
-
-  // Checks if the current text contains a valid mention term.
-  const hasValidMentionTerm = (value: string): boolean => {
-    const atSymbolIndex = value.lastIndexOf("@");
-    return atSymbolIndex !== -1 && !value.substring(atSymbolIndex).includes(" ");
   };
 
   // Initiates a search for mentions based on the current text.

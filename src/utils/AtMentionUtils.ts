@@ -51,3 +51,9 @@ export const moveCaretToEndOfEditor = (
     ieRange.select();
   }
 };
+
+// Checks if the current text contains a valid mention term.
+export const hasValidMentionTerm = (value: string): boolean => {
+  const atSymbolIndex = value.lastIndexOf("@");
+  return atSymbolIndex !== -1 && !value.substring(atSymbolIndex).includes(" ");
+};
