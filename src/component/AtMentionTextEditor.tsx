@@ -165,7 +165,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
     border: "1px solid #616061",
     borderRadius: "4px",
     minHeight: isPlaceholderActive ? "40px" : "82px",
-    padding: "5px",
+    padding: "12px",
     textAlign: "left",
     fontSize: "22px",
     outline: "none",
