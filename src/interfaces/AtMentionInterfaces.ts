@@ -36,7 +36,6 @@ interface AtMentionControlProps {
 /**
  * Props for AtMentionTextEditor component.
  * @param value - The current value of the editor.
- * @param mentionHtmlToAdd - HTML string to be added when a mention is selected. Initial value MUST be an empty string.
  * @param onChange - Callback for text change events.
  * @param onInitiateSearch - Callback to initiate search for mentions.
  * @param onKeyDown - Optional callback for key down events.
@@ -45,9 +44,8 @@ interface AtMentionControlProps {
  */
 interface AtMentionTextEditorProps {
   value: string;
-  mentionHtmlToAdd: string;
-  onChange: (value: string) => void;
-  onInitiateSearch: (searchString: string) => void;
+  onChange: (innerText: string) => void;
+  onInitiateSearch: (searchString: string, innerHtml: string, innerText: string) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   placeholder?: string;
   className?: string;

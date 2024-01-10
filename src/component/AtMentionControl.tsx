@@ -14,8 +14,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
   placeholder = "Mention",
   mentionTagStyle = "color: blue;",
 }) => {
-  const [editorText, setEditorText] = useState(value || "");
-  const [atMentionToAdd, setAtMentionToAdd] = useState("");
+  const [editorHtml, setEditorHtml] = useState(value || "");
   const [isSearchInProgress, setIsSearchInProgress] = useState(false);
   const [mentionedOptions, setMentionedOptions] = useState<AtMentionUserInfo[]>(
     [],
@@ -31,7 +30,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
 
   useEffect(() => {
     // Syncs the editor text with the value prop.
-    setEditorText(value || "");
+    setEditorHtml(value || "");
   }, [value]);
 
   const handleEditorKeyDown = (e: React.KeyboardEvent) => {
@@ -72,10 +71,10 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
     }
   };
 
-  const handleEditorTextChange = (newValue: string) => {
+  const handleEditorTextChange = (editorInnerHtml: string) => {
     // Updates the editor text and triggers the onChange callback.
-    setEditorText(newValue);
-    onChange?.(newValue);
+    setEditorHtml(editorInnerHtml);
+    onChange?.(editorInnerHtml);
   };
 
   const handleInitiateSearch = (mention: string) => {
@@ -117,20 +116,33 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
     // Updates the editor content with the selected user and triggers onChange.
     const atMentionedUserName = `@${selectedUser.first_name} ${selectedUser.last_name}`;
     const styledText = applyMentionStyle(atMentionedUserName, mentionTagStyle);
-    setAtMentionToAdd(styledText);
-    setEditorText(styledText);
+    const newEditorInnerHtml = getNewEditorInnerHtml(editorHtml, styledText);
+    setEditorHtml(newEditorInnerHtml);
     setIsSearchInProgress(false);
     onChange?.(styledText, selectedUser);
+  };
+
+  const getNewEditorInnerHtml = (editorHtml: string, styledText: string) : string => {
+    // Replaces the content following the last @ character in the editorHtml with the styledText
+    let stringToReturn = "";
+    const lastAtIdx = editorHtml.lastIndexOf("@");
+    if (lastAtIdx !== -1) {
+      stringToReturn = editorHtml.substring(
+        0,
+        lastAtIdx,
+      );
+    }
+    stringToReturn += styledText;
+    return stringToReturn;
   };
 
   return (
     <div style={{ position: "relative" }}>
       <AtMentionTextEditor
-        value={editorText}
+        value={editorHtml}
         onChange={handleEditorTextChange}
         onKeyDown={handleEditorKeyDown}
         onInitiateSearch={handleInitiateSearch}
-        mentionHtmlToAdd={atMentionToAdd}
         placeholder={placeholder}
       />
       <AtMentionDropdown

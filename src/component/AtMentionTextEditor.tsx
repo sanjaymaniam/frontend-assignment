@@ -15,7 +15,6 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   value,
   onChange,
   onInitiateSearch,
-  mentionHtmlToAdd,
   onKeyDown,
   placeholder = "Mention",
 }) => {
@@ -23,13 +22,13 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
   const [isPlaceholderActive, setIsPlaceholderActive] = useState(true);
 
-  // Effect for handling updates to mention content and moving the caret.
   useEffect(() => {
-    if (!isInternalUpdate && editorRef.current && mentionHtmlToAdd.trim() != '') {
-      updateMentionContent();
+    if (!isInternalUpdate && editorRef.current) {
+      editorRef.current.innerHTML = value;
+      moveCaretToEndOfEditor(editorRef);
     }
     setIsInternalUpdate(false);
-  }, [value, mentionHtmlToAdd]);
+  }, [value]);
 
   // Initialize the editor with a placeholder text.
   useEffect(() => {
@@ -38,25 +37,11 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
     }
   }, []);
 
-  // Updates the content within the editor and handles mention HTML.
-  const updateMentionContent = () => {
-    if (editorRef.current) {
-      const lastAtIdx = editorRef.current.innerHTML.lastIndexOf("@");
-      if (lastAtIdx !== -1) {
-        editorRef.current.innerHTML = editorRef.current.innerHTML.substring(
-          0,
-          lastAtIdx,
-        );
-      }
-      editorRef.current.innerHTML += mentionHtmlToAdd;
-      moveCaretToEndOfEditor(editorRef);
-    }
-  };
-
   // Handles behavior when the placeholder is active.
   const handleInputWhenPlaceholderActive = (inputData: string | null) => {
     if (inputData && editorRef.current) {
       editorRef.current.innerText = inputData;
+      onChange(editorRef.current.innerHTML);
       editorRef.current.classList.remove("editorPlaceholder");
       setIsPlaceholderActive(false);
       moveCaretToEndOfEditor(editorRef);
@@ -69,10 +54,10 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
       if (!editorRef.current.innerText.trim()) {
         resetToPlaceholder();
       } else {
-        const newValue = editorRef.current.innerText;
+        const newText = editorRef.current.innerText;
         setIsInternalUpdate(true);
-        onChange(newValue);
-        checkForAtMention(newValue);
+        onChange(editorRef.current.innerHTML);
+        checkForAtMention(newText);
       }
     }
   };
@@ -80,6 +65,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   // Resets the editor content to show the placeholder.
   const resetToPlaceholder = () => {
     if (editorRef.current) {
+      editorRef.current.innerHTML = '';
       editorRef.current.innerText = placeholder;
       editorRef.current.classList.add("editorPlaceholder");
       setIsPlaceholderActive(true);
@@ -141,9 +127,9 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
 
   // Initiates a search for mentions based on the current text.
   const checkForAtMention = (text: string) => {
-    if (hasValidMentionTerm(text) && onInitiateSearch) {
+    if (hasValidMentionTerm(text) && onInitiateSearch && editorRef.current) {
       const mention = text.slice(text.lastIndexOf("@") + 1).trim();
-      onInitiateSearch(mention);
+      onInitiateSearch(mention, editorRef.current.innerHTML, editorRef.current.innerText);
     }
   };
 
