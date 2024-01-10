@@ -5,11 +5,6 @@ import AtMentionDropdown from './AtMentionDropdown';
 /**
  * A component for tagging or selecting a user from a suggestion list.
  * Implemented by combining a custom text editor (AtMentionTextEditor) with a dropdown (AtMentionDropdown).
- *
- * Props:
- * - dataSource: Data source for user information used in at-mentions.
- * - onChange: Callback function triggered with the updated text and selected user (if any).
- * - value: Current value of the text in the editor.
  */
 const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChange, value, placeholder = "Mention", mentionTagStyle = "color: blue;" }) => {
   const [editorText, setEditorText] = useState(value || '');
