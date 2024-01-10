@@ -11,9 +11,9 @@ function App() {
     <div>
       <AtMentionControl 
         dataSource={userInfos}
-        shouldHighlight={true}
         onChange={handleChange}
-        placeholder="At mention someone.." />
+        placeholder="Want to mention someone?"
+        mentionTagStyle = "color: #117AA7;" />
     </div>
   )
 }

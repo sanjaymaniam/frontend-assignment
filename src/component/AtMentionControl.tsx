@@ -11,7 +11,7 @@ import AtMentionDropdown from './AtMentionDropdown';
  * - onChange: Callback function triggered with the updated text and selected user (if any).
  * - value: Current value of the text in the editor.
  */
-const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChange, value, placeholder = "Mention" }) => {
+const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChange, value, placeholder = "Mention", mentionTagStyle = "color: blue;" }) => {
   const [editorText, setEditorText] = useState(value || '');
   const [atMentionToAdd, setAtMentionToAdd] = useState('');
   const [isSearchInProgress, setIsSearchInProgress] = useState(false);
@@ -117,7 +117,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChang
   const applyMentionStyle = (text: string) => {
     // Applies styling to the last @ mention in the text.
     const mentionRegex = /@[^@]*$/;
-    return text.replace(mentionRegex, match => `<span style="color: #117AA7;">${match}</span>`);
+    return text.replace(mentionRegex, match => `<span style=\"${mentionTagStyle}\">${match}</span>`);
   };
 
   return (
