@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AtMentionTextEditor from './AtMentionTextEditor';
 import AtMentionDropdown from './AtMentionDropdown';
+import { applyMentionStyle, findSelectedUser } from '../utils/AtMentionUtils';
 
 /**
  * A component for tagging or selecting a user from a suggestion list.
@@ -87,34 +88,23 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChang
     const selectedOption = dropdownRef.current?.options[selectedIndex];
 
     if (selectedIndex >= 0 && selectedOption) {
-      const selectedUser = findSelectedUser(selectedOption.value);
+      const selectedUser = findSelectedUser(dataSource, selectedOption.value);
       if (selectedUser) {
         updateEditorWithSelectedUser(selectedUser);
       }
     }
   };
 
-  const findSelectedUser = (userId: string): AtMentionUserInfo | undefined => {
-    // Finds the user object based on the selected option's ID.
-    return dataSource.find(option => option.id.toString() === userId);
-  };
-
   const updateEditorWithSelectedUser = (selectedUser: AtMentionUserInfo) => {
     // Updates the editor content with the selected user and triggers onChange.
     const atMentionedUserName = `@${selectedUser.first_name} ${selectedUser.last_name}`;
-    const styledText = applyMentionStyle(atMentionedUserName);
+    const styledText = applyMentionStyle(atMentionedUserName, mentionTagStyle);
     setAtMentionToAdd(styledText);
     setEditorText(styledText);
     setIsSearchInProgress(false);
     onChange?.(styledText, selectedUser);
   };
-
-  const applyMentionStyle = (text: string) => {
-    // Applies styling to the last @ mention in the text.
-    const mentionRegex = /@[^@]*$/;
-    return text.replace(mentionRegex, match => `<span style=\"${mentionTagStyle}\">${match}</span>`);
-  };
-
+  
   return (
     <div style={{ position: 'relative' }}>
       <AtMentionTextEditor
