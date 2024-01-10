@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, CSSProperties } from "react";
 import {
   hasValidMentionTerm,
   moveCaretToEndOfEditor,
+  moveCaretToStartOfEditor,
 } from "../utils/AtMentionUtils";
 
 /**
@@ -24,7 +25,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
 
   // Effect for handling updates to mention content and moving the caret.
   useEffect(() => {
-    if (!isInternalUpdate && editorRef.current) {
+    if (!isInternalUpdate && editorRef.current && mentionHtmlToAdd.trim() != '') {
       updateMentionContent();
     }
     setIsInternalUpdate(false);
@@ -33,10 +34,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   // Initialize the editor with a placeholder text.
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerText.trim() === '') {
-      console.log("Initialized the editor with placeholder text");
-      editorRef.current.innerText = placeholder;
-      editorRef.current.classList.add("editorPlaceholder");
-      setIsPlaceholderActive(true);
+      resetToPlaceholder();
     }
   }, []);
 
@@ -85,6 +83,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
       editorRef.current.innerText = placeholder;
       editorRef.current.classList.add("editorPlaceholder");
       setIsPlaceholderActive(true);
+      moveCaretToStartOfEditor(editorRef);
     }
   };
 
@@ -118,21 +117,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   // Handles focus events on the editor.
   const handleFocus = () => {
     if (editorRef.current && isPlaceholderActive) {
-      moveCaretToStart();
-    }
-  };
-
-  // Moves the caret to the start of the contentEditable element.
-  const moveCaretToStart = () => {
-    if (editorRef.current) {
-      const range = document.createRange();
-      range.setStart(editorRef.current, 0);
-      range.collapse(true);
-      const sel = window.getSelection();
-      if (sel) {
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
+      moveCaretToStartOfEditor(editorRef);
     }
   };
 

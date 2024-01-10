@@ -23,7 +23,6 @@ export const moveCaretToEndOfEditor = (
   editorRef: React.RefObject<HTMLDivElement>,
 ) => {
   if (!editorRef.current) return;
-
   // Adds a non-breaking space if the last child is a SPAN element.
   if (
     editorRef.current.lastChild &&
@@ -49,6 +48,22 @@ export const moveCaretToEndOfEditor = (
     ieRange.moveToElementText(editorRef.current);
     ieRange.collapse(false);
     ieRange.select();
+  }
+};
+
+// Moves the caret to the start of the contentEditable element.
+export const moveCaretToStartOfEditor = (
+  editorRef: React.RefObject<HTMLDivElement>,
+) => {
+  if (editorRef.current) {
+    const range = document.createRange();
+    range.setStart(editorRef.current, 0);
+    range.collapse(true);
+    const sel = window.getSelection();
+    if (sel) {
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
   }
 };
 
