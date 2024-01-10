@@ -113,6 +113,16 @@ Whether the dropdown is visible.
 - `dropdownRef`: `React.RefObject<HTMLSelectElement>`
 Ref to the dropdown element.
 
+Usage:
+```
+<AtMentionDropdown
+   options={mentionedOptions}
+   onSelect={handleUserSelection}
+   isShown={isSearchInProgress}
+   dropdownRef={dropdownRef}
+/>
+```
+
 
 ## TO DO
 Items to take up if there's more time:
