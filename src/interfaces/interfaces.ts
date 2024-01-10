@@ -22,6 +22,7 @@ interface AtMentionUserInfo {
  * @param onChange - Callback function that is triggered when the input changes or an option is selected.
  *                   It passes the current input text and the selected option.
  * @param value - The controlled value of the text editor.
+ * @param placeholder - Optional placeholder text for the editor.
  */
 interface AtMentionControlProps {
   dataSource: AtMentionUserInfo[];
@@ -29,6 +30,7 @@ interface AtMentionControlProps {
   mentionChar?: string;
   onChange?: (inputText: string, selectedOption?: AtMentionUserInfo) => void;
   value?: string;
+  placeholder?: string;
 }
 
 

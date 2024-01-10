@@ -12,7 +12,8 @@ function App() {
       <AtMentionControl 
         dataSource={userInfos}
         shouldHighlight={true}
-        onChange={handleChange} />
+        onChange={handleChange}
+        placeholder="At mention someone.." />
     </div>
   )
 }
