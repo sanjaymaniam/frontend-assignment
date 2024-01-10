@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, CSSProperties } from "react";
+import { moveCaretToEndOfEditor } from "../utils/AtMentionUtils";
 
 /**
  * Wrapper around a content-editable div functioning as a text editor with 
@@ -42,35 +43,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
         editorRef.current.innerHTML = editorRef.current.innerHTML.substring(0, lastAtIdx);
       }
       editorRef.current.innerHTML += mentionHtmlToAdd;
-      moveCaretToEndOfEditor();
-    }
-  };
-
-  // Moves the caret to the end of the contentEditable element.
-  const moveCaretToEndOfEditor = () => {
-    if (!editorRef.current) return;
-  
-    // Adds a non-breaking space if the last child is a SPAN element.
-    if (editorRef.current.lastChild && editorRef.current.lastChild.nodeName === "SPAN") {
-      const textNode = document.createTextNode("\u00A0");
-      editorRef.current.appendChild(textNode);
-    }
-  
-    // Moves the caret to the end.
-    // https://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity
-    const range = document.createRange();
-    range.selectNodeContents(editorRef.current);
-    range.collapse(false);
-    const selection = window.getSelection();
-  
-    if (selection) {
-      selection.removeAllRanges();
-      selection.addRange(range);
-    } else if ((document as any).selection) { // For older IE versions
-      const ieRange = (document.body as any).createTextRange();
-      ieRange.moveToElementText(editorRef.current);
-      ieRange.collapse(false);
-      ieRange.select();
+      moveCaretToEndOfEditor(editorRef);
     }
   };
 
@@ -80,7 +53,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
       editorRef.current.innerText = inputData;
       editorRef.current.classList.remove('editorPlaceholder');
       setIsPlaceholderActive(false);
-      moveCaretToEndOfEditor();
+      moveCaretToEndOfEditor(editorRef);
     }
   };
 
