@@ -4,7 +4,7 @@ import AtMentionDropdown from "./AtMentionDropdown";
 import { applyMentionStyle, findSelectedUser } from "../utils/AtMentionUtils";
 
 /**
- * A component for tagging or selecting a user from a suggestion list.
+ * A component for tagging and selecting a user from a suggestion list.
  * Implemented by combining a custom text editor (AtMentionTextEditor) with a dropdown (AtMentionDropdown).
  */
 const AtMentionControl: React.FC<AtMentionControlProps> = ({

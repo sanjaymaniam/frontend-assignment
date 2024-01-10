@@ -1,5 +1,9 @@
 import React, { CSSProperties } from "react";
 
+/**
+ * A component to select a user from a suggestion list.
+ * Wrapper around a select HTML element.
+ */
 const AtMentionDropdown: React.FC<AtMentionDropdownProps> = ({
   options,
   onSelect,
