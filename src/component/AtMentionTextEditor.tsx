@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, CSSProperties } from "react";
 /**
  * Wrapper around a content-editable div functioning as a text editor with 
  * @mention capabilities. It manages placeholder behavior, caret positioning,
- * and more importantly, allows us to render selected user name with a custom
+ * and more importantly, allows us to render selected user names with a custom
  * styling in the editor.
  * 
  * Props:
