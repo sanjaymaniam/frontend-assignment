@@ -32,9 +32,11 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
 
   // Initialize the editor with a placeholder text.
   useEffect(() => {
-    if (editorRef.current) {
+    if (editorRef.current && editorRef.current.innerText.trim() === '') {
+      console.log("Initialized the editor with placeholder text");
       editorRef.current.innerText = placeholder;
       editorRef.current.classList.add("editorPlaceholder");
+      setIsPlaceholderActive(true);
     }
   }, []);
 
@@ -54,7 +56,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   };
 
   // Handles behavior when the placeholder is active.
-  const handlePlaceholderActive = (inputData: string | null) => {
+  const hanadleInputWhenPlaceholderActive = (inputData: string | null) => {
     if (inputData && editorRef.current) {
       editorRef.current.innerText = inputData;
       editorRef.current.classList.remove("editorPlaceholder");
@@ -63,8 +65,8 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
     }
   };
 
-  // Handles behavior when the placeholder is not active.
-  const handlePlaceholderInactive = () => {
+  // Handles input behavior when the placeholder is not active.
+  const hanadleInputWhenPlaceholderInactive = () => {
     if (editorRef.current) {
       if (!editorRef.current.innerText.trim()) {
         resetToPlaceholder();
@@ -146,9 +148,9 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
     const inputEvent = e.nativeEvent as InputEvent;
     if (isPlaceholderActive) {
       e.preventDefault();
-      handlePlaceholderActive(inputEvent.data);
+      hanadleInputWhenPlaceholderActive(inputEvent.data);
     } else {
-      handlePlaceholderInactive();
+      hanadleInputWhenPlaceholderInactive();
     }
   };
 
