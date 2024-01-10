@@ -37,17 +37,22 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
   const handleEditorKeyDown = (e: React.KeyboardEvent) => {
     // Handles keyboard navigation in the dropdown.
     if (isSearchInProgress && dropdownRef.current) {
-      e.preventDefault();
+      
       switch (e.key) {
         case "ArrowDown":
         case "ArrowUp":
+          e.preventDefault();
           navigateDropdown(e.key);
           break;
         case "Enter":
+          e.preventDefault();
           selectUserFromDropdown();
           break;
         case "Escape":
           setIsSearchInProgress(false);
+          break;
+        default:
+          // Allow other keys for normal typing.
           break;
       }
     }
