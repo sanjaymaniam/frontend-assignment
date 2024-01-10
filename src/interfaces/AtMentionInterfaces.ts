@@ -33,7 +33,6 @@ interface AtMentionControlProps {
   mentionTagStyle?: string;
 }
 
-
 /**
  * Props for AtMentionTextEditor component.
  * @param value - The current value of the editor.

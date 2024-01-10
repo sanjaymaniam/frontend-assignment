@@ -1,17 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
-import AtMentionTextEditor from './AtMentionTextEditor';
-import AtMentionDropdown from './AtMentionDropdown';
-import { applyMentionStyle, findSelectedUser } from '../utils/AtMentionUtils';
+import React, { useState, useEffect, useRef } from "react";
+import AtMentionTextEditor from "./AtMentionTextEditor";
+import AtMentionDropdown from "./AtMentionDropdown";
+import { applyMentionStyle, findSelectedUser } from "../utils/AtMentionUtils";
 
 /**
  * A component for tagging or selecting a user from a suggestion list.
  * Implemented by combining a custom text editor (AtMentionTextEditor) with a dropdown (AtMentionDropdown).
  */
-const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChange, value, placeholder = "Mention", mentionTagStyle = "color: blue;" }) => {
-  const [editorText, setEditorText] = useState(value || '');
-  const [atMentionToAdd, setAtMentionToAdd] = useState('');
+const AtMentionControl: React.FC<AtMentionControlProps> = ({
+  dataSource,
+  onChange,
+  value,
+  placeholder = "Mention",
+  mentionTagStyle = "color: blue;",
+}) => {
+  const [editorText, setEditorText] = useState(value || "");
+  const [atMentionToAdd, setAtMentionToAdd] = useState("");
   const [isSearchInProgress, setIsSearchInProgress] = useState(false);
-  const [mentionedOptions, setMentionedOptions] = useState<AtMentionUserInfo[]>([]);
+  const [mentionedOptions, setMentionedOptions] = useState<AtMentionUserInfo[]>(
+    [],
+  );
   const dropdownRef = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
@@ -23,7 +31,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChang
 
   useEffect(() => {
     // Syncs the editor text with the value prop.
-    setEditorText(value || '');
+    setEditorText(value || "");
   }, [value]);
 
   const handleEditorKeyDown = (e: React.KeyboardEvent) => {
@@ -31,14 +39,14 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChang
     if (isSearchInProgress && dropdownRef.current) {
       e.preventDefault();
       switch (e.key) {
-        case 'ArrowDown':
-        case 'ArrowUp':
+        case "ArrowDown":
+        case "ArrowUp":
           navigateDropdown(e.key);
           break;
-        case 'Enter':
+        case "Enter":
           selectUserFromDropdown();
           break;
-        case 'Escape':
+        case "Escape":
           setIsSearchInProgress(false);
           break;
       }
@@ -47,10 +55,13 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChang
 
   const navigateDropdown = (key: string) => {
     // Navigates dropdown options with arrow keys.
-    if (dropdownRef.current)
-    {
-      const selectedIndex = dropdownRef.current.selectedIndex + (key === 'ArrowDown' ? 1 : -1);
-      if (selectedIndex >= 0 && selectedIndex < dropdownRef.current.options.length) {
+    if (dropdownRef.current) {
+      const selectedIndex =
+        dropdownRef.current.selectedIndex + (key === "ArrowDown" ? 1 : -1);
+      if (
+        selectedIndex >= 0 &&
+        selectedIndex < dropdownRef.current.options.length
+      ) {
         dropdownRef.current.selectedIndex = selectedIndex;
       }
     }
@@ -71,8 +82,10 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChang
     }
 
     setIsSearchInProgress(true);
-    const filteredOptions = dataSource.filter(option =>
-      `${option.first_name} ${option.last_name}`.toLowerCase().includes(mention.toLowerCase())
+    const filteredOptions = dataSource.filter((option) =>
+      `${option.first_name} ${option.last_name}`
+        .toLowerCase()
+        .includes(mention.toLowerCase()),
     );
     setMentionedOptions(filteredOptions);
   };
@@ -104,9 +117,9 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({ dataSource, onChang
     setIsSearchInProgress(false);
     onChange?.(styledText, selectedUser);
   };
-  
+
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: "relative" }}>
       <AtMentionTextEditor
         value={editorText}
         onChange={handleEditorTextChange}

@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef, CSSProperties } from "react";
-import { hasValidMentionTerm, moveCaretToEndOfEditor } from "../utils/AtMentionUtils";
+import {
+  hasValidMentionTerm,
+  moveCaretToEndOfEditor,
+} from "../utils/AtMentionUtils";
 
 /**
- * Wrapper around a content-editable div functioning as a text editor with 
+ * Wrapper around a content-editable div functioning as a text editor with
  * @mention capabilities. It manages placeholder behavior, caret positioning,
  * and more importantly, allows us to render selected user names with a custom
- * styling in the editor. 
+ * styling in the editor.
  */
 const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   value,
@@ -31,7 +34,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   useEffect(() => {
     if (editorRef.current) {
       editorRef.current.innerText = placeholder;
-      editorRef.current.classList.add('editorPlaceholder');
+      editorRef.current.classList.add("editorPlaceholder");
     }
   }, []);
 
@@ -40,7 +43,10 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
     if (editorRef.current) {
       const lastAtIdx = editorRef.current.innerHTML.lastIndexOf("@");
       if (lastAtIdx !== -1) {
-        editorRef.current.innerHTML = editorRef.current.innerHTML.substring(0, lastAtIdx);
+        editorRef.current.innerHTML = editorRef.current.innerHTML.substring(
+          0,
+          lastAtIdx,
+        );
       }
       editorRef.current.innerHTML += mentionHtmlToAdd;
       moveCaretToEndOfEditor(editorRef);
@@ -51,7 +57,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   const handlePlaceholderActive = (inputData: string | null) => {
     if (inputData && editorRef.current) {
       editorRef.current.innerText = inputData;
-      editorRef.current.classList.remove('editorPlaceholder');
+      editorRef.current.classList.remove("editorPlaceholder");
       setIsPlaceholderActive(false);
       moveCaretToEndOfEditor(editorRef);
     }
@@ -75,7 +81,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   const resetToPlaceholder = () => {
     if (editorRef.current) {
       editorRef.current.innerText = placeholder;
-      editorRef.current.classList.add('editorPlaceholder');
+      editorRef.current.classList.add("editorPlaceholder");
       setIsPlaceholderActive(true);
     }
   };
@@ -91,7 +97,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
 
   // Prevents movement of the caret with arrow keys.
   const preventArrowKeyMovement = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const arrowKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+    const arrowKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
     if (arrowKeys.includes(e.key)) {
       e.preventDefault();
     }
@@ -130,7 +136,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
 
   // Handles blur events on the editor.
   const handleBlur = () => {
-    if (editorRef.current && editorRef.current.innerText.trim() === '') {
+    if (editorRef.current && editorRef.current.innerText.trim() === "") {
       resetToPlaceholder();
     }
   };
