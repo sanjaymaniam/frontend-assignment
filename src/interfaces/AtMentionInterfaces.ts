@@ -44,7 +44,7 @@ interface AtMentionControlProps {
  */
 interface AtMentionTextEditorProps {
   value: string;
-  onChange: (innerText: string) => void;
+  onChange: (innerHtml: string, innerText: string) => void;
   onInitiateSearch: (searchString: string, innerHtml: string, innerText: string) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   placeholder?: string;

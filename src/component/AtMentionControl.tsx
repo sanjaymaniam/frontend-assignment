@@ -71,10 +71,10 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
     }
   };
 
-  const handleEditorTextChange = (editorInnerHtml: string) => {
+  const handleEditorTextChange = (editorInnerHtml: string, editorInnerText: string) => {
     // Updates the editor text and triggers the onChange callback.
     setEditorHtml(editorInnerHtml);
-    onChange?.(editorInnerHtml);
+    onChange?.(editorInnerText);
   };
 
   const handleInitiateSearch = (mention: string) => {
@@ -119,7 +119,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
     const newEditorInnerHtml = getNewEditorInnerHtml(editorHtml, styledText);
     setEditorHtml(newEditorInnerHtml);
     setIsSearchInProgress(false);
-    onChange?.(styledText, selectedUser);
+    // onChange?.(styledText, selectedUser);
   };
 
   const getNewEditorInnerHtml = (editorHtml: string, styledText: string) : string => {

@@ -22,14 +22,6 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
   const [isPlaceholderActive, setIsPlaceholderActive] = useState(true);
 
-  useEffect(() => {
-    if (!isInternalUpdate && editorRef.current) {
-      editorRef.current.innerHTML = value;
-      moveCaretToEndOfEditor(editorRef);
-    }
-    setIsInternalUpdate(false);
-  }, [value]);
-
   // Initialize the editor with a placeholder text.
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerText.trim() === '') {
@@ -37,11 +29,21 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
     }
   }, []);
 
+  // Control the inner HTML of the editable div with the value prop
+  useEffect(() => {
+    if (!isInternalUpdate && editorRef.current) {
+      editorRef.current.innerHTML = value;
+      onChange(editorRef.current.innerHTML, editorRef.current.innerText);
+      moveCaretToEndOfEditor(editorRef);
+    }
+    setIsInternalUpdate(false);
+  }, [value]);
+
   // Handles behavior when the placeholder is active.
   const handleInputWhenPlaceholderActive = (inputData: string | null) => {
     if (inputData && editorRef.current) {
       editorRef.current.innerText = inputData;
-      onChange(editorRef.current.innerHTML);
+      onChange(editorRef.current.innerHTML, editorRef.current.innerText);
       editorRef.current.classList.remove("editorPlaceholder");
       setIsPlaceholderActive(false);
       moveCaretToEndOfEditor(editorRef);
@@ -56,7 +58,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
       } else {
         const newText = editorRef.current.innerText;
         setIsInternalUpdate(true);
-        onChange(editorRef.current.innerHTML);
+        onChange(editorRef.current.innerHTML, editorRef.current.innerText);
         checkForAtMention(newText);
       }
     }
@@ -66,6 +68,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   const resetToPlaceholder = () => {
     if (editorRef.current) {
       editorRef.current.innerHTML = '';
+      onChange(editorRef.current.innerHTML, editorRef.current.innerText);
       editorRef.current.innerText = placeholder;
       editorRef.current.classList.add("editorPlaceholder");
       setIsPlaceholderActive(true);
