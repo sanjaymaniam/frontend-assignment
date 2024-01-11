@@ -16,7 +16,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
 }) => {
   const [editorHtml, setEditorHtml] = useState(value || "");
   const [isSearchInProgress, setIsSearchInProgress] = useState(false);
-  const [mentionedOptions, setMentionedOptions] = useState<AtMentionUserInfo[]>(
+  const [suggestedOptions, setSuggestedOptions] = useState<AtMentionUserInfo[]>(
     [],
   );
   const dropdownRef = useRef<HTMLSelectElement>(null);
@@ -81,7 +81,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
     // Initiates the search for @mentions in the dropdown.
     if (!mention.trim()) {
       setIsSearchInProgress(false);
-      setMentionedOptions([]);
+      setSuggestedOptions([]);
       return;
     }
 
@@ -91,7 +91,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
         .toLowerCase()
         .includes(mention.toLowerCase()),
     );
-    setMentionedOptions(filteredOptions);
+    setSuggestedOptions(filteredOptions);
   };
 
   const handleUserSelection = () => {
@@ -145,7 +145,7 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
         placeholder={placeholder}
       />
       <AtMentionDropdown
-        options={mentionedOptions}
+        options={suggestedOptions}
         onSelect={handleUserSelection}
         isShown={isSearchInProgress}
         dropdownRef={dropdownRef}
