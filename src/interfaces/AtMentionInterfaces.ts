@@ -19,7 +19,7 @@ interface AtMentionUserInfo {
  * @param dataSource - Array of user information for @mentions.
  * @param mentionChar - Optional character to trigger @mentions. Defaults to '@'.
  * @param onChange - Callback function that is triggered when the input changes or an option is selected.
- *                   It passes the current input text and the selected option.
+ *                   It passes the current input text.
  * @param value - The controlled value of the text editor.
  * @param placeholder - Optional placeholder text for the editor. Default text is "Mention".
  * @param mentionTagStyle - Optional styling for the user tag in the editor. Default style is "color: blue ".
@@ -27,7 +27,7 @@ interface AtMentionUserInfo {
 interface AtMentionControlProps {
   dataSource: AtMentionUserInfo[];
   mentionChar?: string;
-  onChange?: (inputText: string, selectedOption?: AtMentionUserInfo) => void;
+  onChange?: (inputText: string) => void;
   value?: string;
   placeholder?: string;
   mentionTagStyle?: string;

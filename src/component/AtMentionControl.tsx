@@ -119,7 +119,6 @@ const AtMentionControl: React.FC<AtMentionControlProps> = ({
     const newEditorInnerHtml = getNewEditorInnerHtml(editorHtml, styledText);
     setEditorHtml(newEditorInnerHtml);
     setIsSearchInProgress(false);
-    // onChange?.(styledText, selectedUser);
   };
 
   const getNewEditorInnerHtml = (editorHtml: string, styledText: string) : string => {

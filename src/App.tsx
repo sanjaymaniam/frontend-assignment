@@ -5,9 +5,8 @@ import userInfos from "../data.json";
 function App() {
   const handleChange = (
     inputHtml: string,
-    selectedUser?: AtMentionUserInfo,
   ) => {
-    console.log(`Input HTML: ${inputHtml}, Last Selected User: ${selectedUser}`);
+    console.log(`Text in editor: ${inputHtml}`);
   };
 
   return (
