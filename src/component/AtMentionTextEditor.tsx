@@ -24,7 +24,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
 
   // Initialize the editor with a placeholder text.
   useEffect(() => {
-    if (editorRef.current && editorRef.current.innerText.trim() === '') {
+    if (editorRef.current && editorRef.current.innerText.trim() === "") {
       resetToPlaceholder();
     }
   }, []);
@@ -32,9 +32,14 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   // Control the inner HTML of the editable div with the value prop
   useEffect(() => {
     if (!isInternalUpdate && editorRef.current) {
-      editorRef.current.innerHTML = value;
-      onChange(editorRef.current.innerHTML, editorRef.current.innerText);
-      moveCaretToEndOfEditor(editorRef);
+      if (!value.trim()) {
+        // Show placeholder when value prop is empty
+        resetToPlaceholder();
+      } else {
+        editorRef.current.innerHTML = value;
+        onChange(editorRef.current.innerHTML, editorRef.current.innerText);
+        moveCaretToEndOfEditor(editorRef);
+      }
     }
     setIsInternalUpdate(false);
   }, [value]);
@@ -67,7 +72,7 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   // Resets the editor content to show the placeholder.
   const resetToPlaceholder = () => {
     if (editorRef.current) {
-      editorRef.current.innerHTML = '';
+      editorRef.current.innerHTML = "";
       onChange(editorRef.current.innerHTML, editorRef.current.innerText);
       editorRef.current.innerText = placeholder;
       editorRef.current.classList.add("editorPlaceholder");
@@ -132,7 +137,11 @@ const AtMentionTextEditor: React.FC<AtMentionTextEditorProps> = ({
   const checkForAtMention = (text: string) => {
     if (hasValidMentionTerm(text) && onInitiateSearch && editorRef.current) {
       const mention = text.slice(text.lastIndexOf("@") + 1).trim();
-      onInitiateSearch(mention, editorRef.current.innerHTML, editorRef.current.innerText);
+      onInitiateSearch(
+        mention,
+        editorRef.current.innerHTML,
+        editorRef.current.innerText,
+      );
     }
   };
 
